@@ -160,8 +160,8 @@
    #!/bin/bash
 
    # Обозначим переменные
-   read login < /home/vagrant/scripts/2.txt
-   key=/home/vagrant/scripts/keys.txt
+   read login < /home/vagrant/scripts/k1.txt
+   key=/home/vagrant/scripts/k2.txt
    ssl_dir=/etc/nginx/ssl
 
    # Перейдем в папку в которую будет сформирован сертификат
