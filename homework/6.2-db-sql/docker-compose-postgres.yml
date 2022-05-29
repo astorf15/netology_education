@@ -1,0 +1,19 @@
+version: '2.5'
+services:
+  db:
+    image: postgres:14.3-bullseye
+    restart: always
+    container_name: psql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - ./db:/var/lib/postgresql/data
+      - ./backup:/var/lib/postgresql/backup
+volumes:
+  db:
+    driver: local
+  backup:
+    driver: local
