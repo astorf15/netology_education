@@ -1,0 +1,12 @@
+node.name: netology_test
+#echo "node.roles: master, data" 
+discovery.zen.minimum_master_nodes: 1
+node.master: true
+node.data: true 
+path.data: /var/lib/elasticsearch/data/
+path.logs: /var/lib/elasticsearch/logs/
+path.repo: /var/lib/elasticsearch/snapshots/ 
+network.host: 0.0.0.0
+discovery.seed_hosts: ["127.0.0.1", "[::1]"] 
+network.publish_host: localhost  
+cluster.initial_master_nodes: 127.0.0.1  
