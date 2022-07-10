@@ -1,0 +1,233 @@
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # yandex_compute_instance.each["1"] will be created
+  + resource "yandex_compute_instance" "each" {
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + hostname                  = (known after apply)
+      + id                        = (known after apply)
+      + metadata                  = {
+          + "ssh-keys" = <<-EOT
+                ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuZqkdk1e5Y0Cid47tkBqvDOz4tqGqc5clrgzA2tfrPvbkXv6k36Xm5r6V6ZQ9TpZ0YFSpnv9RoptAxV+5t67sltz+r+LY6zTSRl8cRn0bYU5Mlo//7OIqm9TG1dS+cizk+aCxQlTasQt2J90PgKxThAmitGGdgpYKiFHlRujAZWXYs2kibZ4RDGreEMC4wUS6dAFknanITwjpZqauOn0ieLhQf7/YwJEV+iZnMb7j5m81djBs8xEAlZwWNt4FlxJoZxycM/zVw7Iq0ie7Gm+OyfkLDxe4VldqdSdlhEBRME5owwUc83tQczyJDji2owZvylJf+ZHpgQ91AEkMyysWvj2ryz/yi1cLtJwCOOYu9rviQIZXDBOUqaLevhHRTCaKswXv5EjOx7zATuKxasob0QzOUI4sqB81dWN2RTAlnZZE2TIbmRO9247ylFSBKkve87gmYmEee3WZ670p4ZcxNQlrrCYWkb5B7FXjJPfn+RVrIYe2nMYARa+wG5nNNjM= astorf@ubuntu
+            EOT
+        }
+      + name                      = "node-each-1-stage"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v2"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = "fd8db2s90v5knmg1p7dv"
+              + name        = "root-stage-each-1"
+              + size        = 30
+              + snapshot_id = (known after apply)
+              + type        = "network-nvme"
+            }
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = "10.3.2.13"
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = true
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 100
+          + cores         = 2
+          + memory        = 2
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # yandex_compute_instance.node[0] will be created
+  + resource "yandex_compute_instance" "node" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + hostname                  = "node-1.netology.stage"
+      + id                        = (known after apply)
+      + metadata                  = {
+          + "ssh-keys" = <<-EOT
+                ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuZqkdk1e5Y0Cid47tkBqvDOz4tqGqc5clrgzA2tfrPvbkXv6k36Xm5r6V6ZQ9TpZ0YFSpnv9RoptAxV+5t67sltz+r+LY6zTSRl8cRn0bYU5Mlo//7OIqm9TG1dS+cizk+aCxQlTasQt2J90PgKxThAmitGGdgpYKiFHlRujAZWXYs2kibZ4RDGreEMC4wUS6dAFknanITwjpZqauOn0ieLhQf7/YwJEV+iZnMb7j5m81djBs8xEAlZwWNt4FlxJoZxycM/zVw7Iq0ie7Gm+OyfkLDxe4VldqdSdlhEBRME5owwUc83tQczyJDji2owZvylJf+ZHpgQ91AEkMyysWvj2ryz/yi1cLtJwCOOYu9rviQIZXDBOUqaLevhHRTCaKswXv5EjOx7zATuKxasob0QzOUI4sqB81dWN2RTAlnZZE2TIbmRO9247ylFSBKkve87gmYmEee3WZ670p4ZcxNQlrrCYWkb5B7FXjJPfn+RVrIYe2nMYARa+wG5nNNjM= astorf@ubuntu
+            EOT
+        }
+      + name                      = "node-1-stage"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = "fd8db2s90v5knmg1p7dv"
+              + name        = "root-stage-1"
+              + size        = 30
+              + snapshot_id = (known after apply)
+              + type        = "network-nvme"
+            }
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = "10.3.2.11"
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = true
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 100
+          + cores         = 2
+          + memory        = 2
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # yandex_compute_instance.node[1] will be created
+  + resource "yandex_compute_instance" "node" {
+      + allow_stopping_for_update = true
+      + created_at                = (known after apply)
+      + folder_id                 = (known after apply)
+      + fqdn                      = (known after apply)
+      + hostname                  = "node-2.netology.stage"
+      + id                        = (known after apply)
+      + metadata                  = {
+          + "ssh-keys" = <<-EOT
+                ubuntu:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDuZqkdk1e5Y0Cid47tkBqvDOz4tqGqc5clrgzA2tfrPvbkXv6k36Xm5r6V6ZQ9TpZ0YFSpnv9RoptAxV+5t67sltz+r+LY6zTSRl8cRn0bYU5Mlo//7OIqm9TG1dS+cizk+aCxQlTasQt2J90PgKxThAmitGGdgpYKiFHlRujAZWXYs2kibZ4RDGreEMC4wUS6dAFknanITwjpZqauOn0ieLhQf7/YwJEV+iZnMb7j5m81djBs8xEAlZwWNt4FlxJoZxycM/zVw7Iq0ie7Gm+OyfkLDxe4VldqdSdlhEBRME5owwUc83tQczyJDji2owZvylJf+ZHpgQ91AEkMyysWvj2ryz/yi1cLtJwCOOYu9rviQIZXDBOUqaLevhHRTCaKswXv5EjOx7zATuKxasob0QzOUI4sqB81dWN2RTAlnZZE2TIbmRO9247ylFSBKkve87gmYmEee3WZ670p4ZcxNQlrrCYWkb5B7FXjJPfn+RVrIYe2nMYARa+wG5nNNjM= astorf@ubuntu
+            EOT
+        }
+      + name                      = "node-2-stage"
+      + network_acceleration_type = "standard"
+      + platform_id               = "standard-v1"
+      + service_account_id        = (known after apply)
+      + status                    = (known after apply)
+      + zone                      = "ru-central1-a"
+
+      + boot_disk {
+          + auto_delete = true
+          + device_name = (known after apply)
+          + disk_id     = (known after apply)
+          + mode        = (known after apply)
+
+          + initialize_params {
+              + block_size  = (known after apply)
+              + description = (known after apply)
+              + image_id    = "fd8db2s90v5knmg1p7dv"
+              + name        = "root-stage-2"
+              + size        = 30
+              + snapshot_id = (known after apply)
+              + type        = "network-nvme"
+            }
+        }
+
+      + network_interface {
+          + index              = (known after apply)
+          + ip_address         = "10.3.2.12"
+          + ipv4               = true
+          + ipv6               = (known after apply)
+          + ipv6_address       = (known after apply)
+          + mac_address        = (known after apply)
+          + nat                = true
+          + nat_ip_address     = (known after apply)
+          + nat_ip_version     = (known after apply)
+          + security_group_ids = (known after apply)
+          + subnet_id          = (known after apply)
+        }
+
+      + placement_policy {
+          + host_affinity_rules = (known after apply)
+          + placement_group_id  = (known after apply)
+        }
+
+      + resources {
+          + core_fraction = 100
+          + cores         = 2
+          + memory        = 2
+        }
+
+      + scheduling_policy {
+          + preemptible = (known after apply)
+        }
+    }
+
+  # yandex_vpc_network.default will be created
+  + resource "yandex_vpc_network" "default" {
+      + created_at                = (known after apply)
+      + default_security_group_id = (known after apply)
+      + folder_id                 = (known after apply)
+      + id                        = (known after apply)
+      + labels                    = (known after apply)
+      + name                      = "net_stage"
+      + subnet_ids                = (known after apply)
+    }
+
+  # yandex_vpc_subnet.default will be created
+  + resource "yandex_vpc_subnet" "default" {
+      + created_at     = (known after apply)
+      + folder_id      = (known after apply)
+      + id             = (known after apply)
+      + labels         = (known after apply)
+      + name           = "subnet2"
+      + network_id     = (known after apply)
+      + v4_cidr_blocks = [
+          + "10.3.2.0/24",
+        ]
+      + v6_cidr_blocks = (known after apply)
+      + zone           = "ru-central1-a"
+    }
+
+Plan: 5 to add, 0 to change, 0 to destroy.
+
