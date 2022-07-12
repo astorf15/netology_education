@@ -31,7 +31,7 @@ resource "yandex_compute_instance" "node" {
   }
 }
 
-// for each instance
+// yc for each instance
 locals {
   id = toset([
     "1",
