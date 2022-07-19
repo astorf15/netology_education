@@ -4,7 +4,7 @@ resource "yandex_compute_instance" "node" {
   zone     = "ru-central1-a"
   name     = "node-${count.index + 1}-${terraform.workspace}"
   hostname = "node-${count.index + 1}.netology.${terraform.workspace}"
-  platform_id = "standard-v3"
+  platform_id = "standard-v1"
   // instance_type = s2.medium
   allow_stopping_for_update = true
   resources {
