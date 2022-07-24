@@ -1,4 +1,4 @@
-В `playbook` описывается удаленная устакновка на сервер `Java`, `Elasticserch` и `Kibana`  с исповльзованием модулей `copy`, `file`, `unarchive` и `template`
+В [plaubook](https://github.com/astorf15/net.devops/blob/main/homework/8.2-ansible-playbook/playbook/site.yml) описывается удаленная устакновка на сервер `Java`, `Elasticserch` и `Kibana`  с исповльзованием модулей `copy`, `file`, `unarchive` и `template`
 
 
 ### Установка `Java`
