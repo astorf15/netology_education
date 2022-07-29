@@ -1,0 +1,10 @@
+---
+  node1:
+    hosts:
+      kibana:
+        ansible_connection: docker
+  node2:
+    hosts:
+      elastic:
+        ansible_connection: docker
+  
