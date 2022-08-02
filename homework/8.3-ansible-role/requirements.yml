@@ -1,13 +1,13 @@
 ---
   - src: git@github.com:astorf15/net.devops/tree/main/homework/8.3-ansible-role/roles/kibana-role.git
     scm: git
-    version: "1.0"
+    version: main
     name: kibana-role 
   - src: git@github.com:astorf15/net.devops/tree/main/homework/8.3-ansible-role/roles/elastic-role.git
     scm: git
-    version: "1.0"
+    version: main
     name: elastic-role
   - src: git@github.com:astorf15/net.devops/tree/main/homework/8.3-ansible-role/roles/java-role.git
     scm: git
-    version: "1.0"
+    version: main
     name: java-role 
