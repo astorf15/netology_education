@@ -1,0 +1,14 @@
+---
+- name: Monitoring stack Install 
+  copy:
+      src: ./files/
+      dest: /opt/monitoring/
+      owner: ubuntu
+      group: ubuntu
+      mode: 0600
+  become: true
+
+- name: Pull all images in compose
+  command: docker-compose -f /opt/monitoring/docker-compose-monitoring.yml pull
+- name: Up all services in compose
+  command: docker-compose -f /opt/monitoring/docker-compose-monitoring.yml up -d

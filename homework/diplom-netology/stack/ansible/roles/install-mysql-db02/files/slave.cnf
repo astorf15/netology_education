@@ -1,0 +1,13 @@
+[mysqld]
+server-id=2
+binlog_format=ROW
+log_bin = mysql-bin
+replicate-do-db	= wordpress
+relay-log = /var/lib/mysql/mysql-relay-bin
+relay-log-index = /var/lib/mysql/mysql-relay-bin.index
+read_only = 1 
+
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+datadir         = /var/lib/mysql
+secure-file-priv= NULL

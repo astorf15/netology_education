@@ -1,0 +1,14 @@
+---
+- name: Install Node Exporter 
+  copy:
+      src: docker-compose-exporter.yml
+      dest: /opt/exporter/
+      owner: ubuntu
+      group: ubuntu
+      mode: 0600
+  become: true
+
+- name: Pull all images in compose
+  command: docker-compose -f /opt/exporter/docker-compose-exporter.yml pull
+- name: Up all services in compose
+  command: docker-compose -f /opt/exporter/docker-compose-exporter.yml up -d

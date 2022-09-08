@@ -1,0 +1,31 @@
+- name: Install Nginx
+  become: true
+  package:
+    name: nginx
+    state: latest
+  notify:
+    - nginx systemd
+
+- import_tasks: certbot-install-snap.yml
+
+- name: Check certificate already exists.
+  stat:
+    path: /etc/letsencrypt/live/{{ certbot_domain | first | replace('*.', '') }}/cert.pem
+  register: letsencrypt_cert
+
+- name: Request certs
+  become: true
+  shell: 
+    cmd: certbot certonly -m {{certbot_admin_email}} -d {{certbot_domain}} -d {{certbot_domain_www}} -d {{certbot_domain_sub1}} -d {{certbot_domain_sub2}} -d {{certbot_domain_sub3}} -d {{certbot_domain_sub4}} --nginx --agree-tos --test-cert --no-eff-email --hsts --rsa-key-size 4096 --cert-name={{certbot_domain}} >> certbot-log.txt
+  when: not letsencrypt_cert.stat.exists
+
+- import_tasks: renew-cron.yml
+
+- name: Copy config files
+  copy: 
+    src: ./files/
+    dest: /etc/nginx/ 
+  notify:
+    - nginx restart  
+
+ 

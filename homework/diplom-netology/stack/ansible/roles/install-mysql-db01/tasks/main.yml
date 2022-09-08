@@ -1,0 +1,14 @@
+---
+- name: Copy files on db01 server
+  copy: 
+    src: ./files/
+    dest: /opt/db-master/
+    owner: ubuntu
+    group: ubuntu
+    mode: 0600 
+  become: true
+
+- name: Pull all images in compose
+  command: docker-compose -f /opt/db-master/docker-compose-mysql.yml pull
+- name: Up all services in compose
+  command: docker-compose -f /opt/db-master/docker-compose-mysql.yml up -d

@@ -1,0 +1,14 @@
+---
+- name: Wordpress Install 
+  copy:
+      src: ./files/
+      dest: /opt/app/
+      owner: ubuntu
+      group: ubuntu
+      mode: 0600
+  become: true
+
+- name: Pull all images in compose
+  command: docker-compose -f /opt/app/docker-compose-app.yml pull
+- name: Up all services in compose
+  command: docker-compose -f /opt/app/docker-compose-app.yml up -d

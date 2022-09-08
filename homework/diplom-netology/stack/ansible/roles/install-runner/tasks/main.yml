@@ -1,0 +1,14 @@
+---
+- name: Copy files on runner server
+  copy: 
+    src: docker-compose-runner.yml 
+    dest: /opt/gitlab_runner/
+    owner: ubuntu
+    group: ubuntu
+    mode: 0644  
+  become: true
+
+- name: Pull all images in compose
+  command: docker-compose -f /opt/gitlab_runner/docker-compose-runner.yml  pull
+- name: Up all services in compose
+  command: docker-compose -f /opt/gitlab_runner/docker-compose-runner.yml up -d

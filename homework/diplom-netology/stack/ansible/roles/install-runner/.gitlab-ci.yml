@@ -1,0 +1,23 @@
+stages:
+  - Upload
+
+variables:
+  SERVER_IP   : '10.2.2.13'
+  SERVER_USER : 'ubuntu'
+  SERVER_PATH : '/opt/app/wordpress/'
+
+Upload index:
+  image: ubuntu
+  before_script:
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'   
+  stage: Upload
+  
+  script:
+    - scp ${CI_PROJECT_DIR}/index.html ${SERVER_USER}@${SERVER_IP}:${SERVER_PATH}
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

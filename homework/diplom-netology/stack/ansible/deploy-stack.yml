@@ -1,0 +1,106 @@
+---
+  - name: Install of Requrements Tools
+    hosts: all
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-tools
+      - configure-hosts-file
+    tags:
+      - install-tools
+  
+  - name: Install Proxy
+    hosts: proxy
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-proxy
+    tags:
+      - install-proxy
+
+  - name: Install Mysql Master node
+    hosts: db01 
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-mysql-db01
+    tags:
+      - install-mysql-db01
+
+  - name: Install Mysql Slave node
+    hosts: db02 
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-mysql-db02
+    tags:
+      - install-mysql-db02
+
+  - name: Install Wordpress
+    hosts: app
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-app
+    tags:
+      - install-app  
+ 
+  - name: Install gitlab
+    hosts: gitlab_web
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-gitlab
+    tags:
+      - install-gitlab  
+    
+  - name: Install runner
+    hosts: runner
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker
+      - install-node-exporter
+      - install-runner
+    tags:
+      - install-runner
+
+  - name: Install Monitoring
+    hosts: monitoring
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - install-docker 
+      - install-node-exporter
+      - install-monitoring
+    tags:
+      - install-monitoring
+
+
+  - name: Configure SSH
+    hosts: all
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - configure-ssh
+    tags:
+      - configure-ssh 

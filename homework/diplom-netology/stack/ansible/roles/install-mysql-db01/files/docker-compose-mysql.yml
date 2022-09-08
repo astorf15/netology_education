@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  db:
+    image: mysql:8.0.27
+    container_name: db_cluster_master
+    command: '--default-authentication-plugin=mysql_native_password'
+    volumes:
+      - ./db_data:/var/lib/mysql
+      - ./master.sql:/docker-entrypoint-initdb.d/start.sql
+      - ./master.cnf:/etc/mysql/my.cnf
+
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    
+    ports:
+      - "3606:3606"
+
+    network_mode: "host"

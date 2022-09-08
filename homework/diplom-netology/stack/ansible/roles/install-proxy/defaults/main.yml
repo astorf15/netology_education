@@ -1,0 +1,16 @@
+---
+# Parameters used when creating new Certbot certs.
+certbot_admin_email: astorf@inbox.ru
+certbot_domain: rusdevops.ru
+certbot_domain_www: www.rusdevops.ru
+certbot_domain_sub1: gitlab.rusdevops.ru
+certbot_domain_sub2: grafana.rusdevops.ru
+certbot_domain_sub3: prometheus.rusdevops.ru
+certbot_domain_sub4: alertmanager.rusdevops.ru
+
+# Certbot auto-renew cron job configuration (for certificate renewals).
+certbot_auto_renew: true
+certbot_auto_renew_user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+certbot_auto_renew_hour: "2"
+certbot_auto_renew_minute: "30"
+certbot_auto_renew_options: "--quiet --no-self-upgrade"
