@@ -3,9 +3,9 @@
   copy: 
     src: ./files/
     dest: /opt/db-slave/
-    owner: ubuntu
-    group: ubuntu
-    mode: 0600 
+    owner: root
+    group: root
+    mode: 0644 
   become: true
 
 - name: Pull all images in compose

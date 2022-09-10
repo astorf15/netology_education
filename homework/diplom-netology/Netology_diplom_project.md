@@ -147,7 +147,7 @@
 ## Этапы выполнения:
 
 ### 1. Зарегистрируем доменное имя `rusdevops.ru` и настроим ресурсные записи DNS
- ![dns_records](img)  
+ ![dns_records](img/dns_records.png)  
 
 ---
 ### 2. Подготовим инфраструктуру с помощью `Terraform` на базе облачного провайдера `YandexCloud`
@@ -702,6 +702,334 @@ variable "linux_user" {
 ```
 </details>
 
+![yc_instances](img/yc_instances.png)
+
 ---
 
-### 3. Настроим внешний Reverse Proxy на основе Nginx и LetsEncrypt.
+### 3. Настроим внешний `Reverse Proxy` на основе `Nginx` и `LetsEncrypt`.
+
+Подготовим Ansible роли [install-proxy](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-proxy) для установки и настройки Nginx и LetsEncrypt , пропишем конфигурационные файлы для форвардинга на нужные subdomains.
+
+```bash
+.
+├── defaults
+│   └── main.yml
+├── files
+│   ├── conf.d
+│   │   ├── alertmanager.rusdevops.ru.conf
+│   │   ├── custom-nginx
+│   │   ├── gitlab.rusdevops.ru.conf
+│   │   ├── grafana.rusdevops.ru.conf
+│   │   ├── prometheus.rusdevops.ru.conf
+│   │   └── rusdevops.ru.conf
+│   ├── snippets
+│   │   ├── proxy.conf
+│   │   └── ssl.conf
+│   └── ssl
+│       └── dhparams4096.pem
+├── handlers
+│   └── main.yml
+└── tasks
+    ├── certbot-install-snap.yml
+    ├── main.yml
+    └── renew-cron.yml
+
+7 directories, 14 files
+```
+---
+
+### 4. Настроим кластер `MySQL` 
+
+Подготовим Ansible роли [install-mysql-db01](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-mysql-db01), [install-mysql-db02](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-mysql-db02) для установки и настройки кластера MYSQL (Master-Slave) с помощью Docker-Compose.
+
+```bash
+# DB01 - Master
+.
+├── files
+│   ├── docker-compose-mysql.yml
+│   ├── master.cnf
+│   └── master.sql - создает пользователя replic и дает ему права на репликацию, файл помещается в docker-entrypoint для автоматического запуска.
+└── tasks
+    └── main.yml
+
+# DB02 - Slave    
+.
+├── files
+│   ├── docker-compose-mysql.yml
+│   ├── slave.cnf
+│   └── slave.sql - задает параметры подключения к мастеру
+└── tasks
+    └── main.yml
+```
+<details><summary>SHOW MASTER STATUS</summary>
+
+```sql
+mysql> show master status;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000004 |      156 | wordpress    |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+1 row in set (0.00 sec)
+```
+</details>
+
+<details><summary>SHOW PROCESSLIST</summary>
+
+```sql
+mysql> SHOW PROCESSLIST;
++----+-----------------+-------------------------+------+-------------+------+-----------------------------------------------------------------+------------------+
+| Id | User            | Host                    | db   | Command     | Time | State                                                           | Info             |
++----+-----------------+-------------------------+------+-------------+------+-----------------------------------------------------------------+------------------+
+|  5 | event_scheduler | localhost               | NULL | Daemon      |  403 | Waiting on empty queue                                          | NULL             |
+|  9 | root            | localhost               | NULL | Query       |    0 | init                                                            | SHOW PROCESSLIST |
+| 10 | replic          | db02.rusdevops.ru:53330 | NULL | Binlog Dump |   31 | Source has sent all binlog to replica; waiting for more updates | NULL             |
++----+-----------------+-------------------------+------+-------------+------+-----------------------------------------------------------------+------------------+
+3 rows in set (0.00 sec)
+```
+</details>
+
+<details><summary>SHOW SLAVE STATUS</summary>
+
+```sql
+mysql> show slave status\G
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for source to send event
+                  Master_Host: 10.2.2.11
+                  Master_User: replic
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000003
+          Read_Master_Log_Pos: 771737
+               Relay_Log_File: mysql-relay-bin.000005
+                Relay_Log_Pos: 771952
+        Relay_Master_Log_File: mysql-bin.000003
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: wordpress
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 771737
+              Relay_Log_Space: 773117
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 1
+                  Master_UUID: 8bd4a10a-2fad-11ed-b755-d00d1ec0362d
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Replica has read all relay log; waiting for more updates
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 
+            Executed_Gtid_Set: 
+                Auto_Position: 0
+         Replicate_Rewrite_DB: 
+                 Channel_Name: 
+           Master_TLS_Version: 
+       Master_public_key_path: 
+        Get_master_public_key: 0
+            Network_Namespace: 
+1 row in set, 1 warning (0.01 sec)
+```
+</details>
+
+<details><summary>SHOW TABLES</summary>
+
+```sql
+mysql> SHOW TABLES;
++-----------------------+
+| Tables_in_wordpress   |
++-----------------------+
+| wp_commentmeta        |
+| wp_comments           |
+| wp_links              |
+| wp_options            |
+| wp_postmeta           |
+| wp_posts              |
+| wp_term_relationships |
+| wp_term_taxonomy      |
+| wp_termmeta           |
+| wp_terms              |
+| wp_usermeta           |
+| wp_users              |
++-----------------------+
+12 rows in set (0.00 sec)
+```
+</details>
+
+---
+
+### 5. Установим WordPress.
+Подготовим Ansible роль [install-app](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-app) для установки и настройки Wordpress с помощью Docker-Compose
+
+```bash
+.
+├── files
+│   └── docker-compose-app.yml
+└── tasks
+    └── main.yml
+
+2 directories, 2 files
+```
+Откроем браузер, введем адрес домена `rusdevops.ru` и убедимся что страница открывается по `HTTPS`.  
+
+![rusdevops](img/rusdevops.ru1.png)
+![certs_lets](img/cert_lets.png)
+
+---
+
+### 6. Установим Gitlab CE и Gitlab Runner.
+Подготовим Ansible роль [install-gitlab](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-gitlab) для установки и настройки Gitlab CE
+
+```bash
+.
+├── defaults
+│   └── main.yml
+├── files
+│   └── gitlab_add_repo.sh
+├── handlers
+│   └── main.yml
+├── tasks
+│   └── main.yml
+├── templates
+│   └── gitlab.rb.j2
+└── vars
+    └── Debian.yml
+
+6 directories, 6 files
+```
+Подключимся к серверу по ssh и получим ROOT пароль из файла.
+
+```bash
+cat /etc/gitlab/initial_root_password
+```
+
+После перейдем по адресу `gitlab.rusdevops.ru` и зарегистрируем новую учетную запись с прававми администратора и создадим репозиторий с именем `Diplom`
+
+![gitlab_ce](img/gitlab.png)
+
+Подготовим Ansible роль [install-runner](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-runner) для установки и настройки Gitlab runner
+
+```bash
+.
+├── files
+│   └── docker-compose-runner.yml
+└── tasks
+    └── main.yml
+
+2 directories, 2 files
+```
+### 7. Настроим `CI/CD` для автоматического развёртывания приложения. 
+
+Добавим runner к проекту на Gitlab
+
+![registr](img/gitlab_runner.png)
+
+Создадим pipeline [.gitlab-ci.yml](https://github.com/astorf15/net.devops/blob/main/homework/diplom-netology/stack/ansible/roles/install-runner/.gitlab-ci.yml) и выполним Push проекта в репозиторий
+
+Перейдем в настройки `CI/CD` проекта и добавим переменную `SSH_PRIVATE_KEY` для возможнсоти подключения гитлаб раннера к серверу с `Wordpress`
+
+![ssh_var](img/ssh_var.png)
+
+
+
+Создадим файл `index.html` , сделаем коммит и выполним push в репозиторий, после чего перейдем в `Gitlab` и проверим автоматический deploy нашего файла на сервер.
+
+![ci_job](img/ci_job.png)
+
+После успешного выполнения перейдем на страницу нашего сайта `https://rusdevops.ru/index.html` и посмотрим результат автоматической доставки. 
+
+![ci_index](img/ci_index.png)
+
+### 8. Настроим мониторинг инфраструктуры с помощью стека: `Prometheus, Alert Manager и Grafana.`
+
+Подготовим Ansible роль [install-monitoring](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-monitoring) для установки и настройки Prometheus, Alert Manager и Grafana на основе сервисов в Docker-Compose
+
+```bash
+.
+├── files
+│   ├── alertmanager
+│   │   └── config.yml
+│   ├── docker-compose-monitoring.yml
+│   ├── grafana
+│   │   ├── dashboards
+│   │   │   └── Node_exporter_dashboard.json
+│   │   └── provisioning
+│   │       ├── dashboards
+│   │       │   └── dashboards.yml
+│   │       └── datasources
+│   │           └── prometheus.yml
+│   └── prometheus
+│       ├── alert.rules
+│       └── prometheus.yml
+└── tasks
+    └── main.yml
+
+9 directories, 8 files   
+```
+
+Подготовим Ansible роль [Node Exporter](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/install-node-exporter), развернем в Docker-Compose на всех инстансах и добавим их ip в [prometheus.yml](https://github.com/astorf15/net.devops/blob/main/homework/diplom-netology/stack/ansible/roles/install-monitoring/files/prometheus/prometheus.yml).
+Откроем Grafana и проверим работу серисов.
+
+![grafana](img/grafana.png)
+
+Добавим правила и оповещения [alert.rules](https://github.com/astorf15/net.devops/blob/main/homework/diplom-netology/stack/ansible/roles/install-monitoring/files/prometheus/alert.rules) в `Prometheus` и настроим отправку оповещения в случае сбоя в телеграм бот с помощью `Alertmanager`
+
+![prometheus](img/prometh_rules1.png)
+![prometheus_exporter](img/prometheus1.png)
+![alert.rules](img/alertmanager.png)
+
+---
+### 9. Настроим `sshd_config` 
+Подготовим Ansible роль [configure-ssh](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/configure-ssh) для настройки ssh, отключим root доступ, подключение по паролю, при желании изменим порт.
+
+```bash
+.
+├── handlers
+│   └── main.yml
+├── tasks
+│   └── main.yml
+└── templates
+    └── sshd_config.j2
+
+3 directories, 3 files
+```
+---
+
+## Финал практикума, ссылки на репозиторий и сервисы
+
+1. Репозиторий с `Terraform` манифестами:  [Yndex-instances](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/terrform)
+2. Репозиторий с `Ansible` ролями: [Ansible-Roles](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible)
+3. Ansible-playbook: [deploy-stack.yml](https://github.com/astorf15/net.devops/blob/main/homework/diplom-netology/stack/ansible/deploy-stack.yml)
+
+Сервисы:
+* [https://www.rusdevops.ru (WordPress)](#5-установим-wordpress)
+* [https://gitlab.rusdevops.ru (Gitlab)](#6-установим-gitlab-ce-и-gitlab-runner)
+* [https://grafana.rusdevops.ru (Grafana)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)
+* [https://prometheus.rusdevops.ru (Prometheus)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)
+* [https://alertmanager.rusdevops.ru (Alert Mansger)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)

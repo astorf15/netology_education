@@ -3,8 +3,8 @@
   copy: 
     src: docker-compose-runner.yml 
     dest: /opt/gitlab_runner/
-    owner: ubuntu
-    group: ubuntu
+    owner: root
+    group: root
     mode: 0644  
   become: true
 
