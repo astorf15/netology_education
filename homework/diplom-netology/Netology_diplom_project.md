@@ -1,5 +1,9 @@
 # Дипломный практикум по курсу DevOps-инженер в YandexCloud
 
+## Диаграмма инфраструктуры
+
+![diagram](img/diagram.png)
+
 <details>tree<summary>Файловая структура проекта</summary> 
 
 ```bash
@@ -9,7 +13,11 @@
 └── stack
     ├── ansible
     │   ├── deploy-stack.yml
+    │   ├── inventory
     │   └── roles
+    │       ├── apt-update
+    │       │   └── tasks
+    │       │       └── main.yml
     │       ├── configure-hosts-file
     │       │   └── tasks
     │       │       └── main.yml
@@ -108,7 +116,11 @@
     │       ├── install-tools
     │       │   └── tasks
     │       │       └── main.yml
-    │       └── terraform.tfstate
+    │       └── iptables-rules
+    │           ├── handlers
+    │           │   └── main.yml
+    │           └── tasks
+    │               └── main.yml
     └── terrform
         ├── 01_proxy.tf
         ├── 02_db01.tf
@@ -125,7 +137,7 @@
         ├── s3_bucket_yc.tf
         └── variables.tf
 
-55 directories, 65 files
+60 directories, 68 files
 ```
 </details>
 
@@ -152,12 +164,12 @@
 ---
 ### 2. Подготовим инфраструктуру с помощью `Terraform` на базе облачного провайдера `YandexCloud`
 
-* Создадим workspace `stage` 
+Создадим workspace `stage` 
 ```bash
 terraform workspace new stage
 ```
 
-#### Опишем конфигурацию провайдера `Yandex Cloud`
+Опишем конфигурацию провайдера `Yandex Cloud`
 
 <details><summary>provider.tf</summary>
 
@@ -180,7 +192,7 @@ provider "yandex" {
 </details>
 
 
-#### Создадим s3 бакет для хранения конфигруации `terraform.tfstate`
+Создадим s3 бакет для хранения конфигруации `terraform.tfstate`
 
 <details><summary>s3_bucket_yc.tf</summary>
  
@@ -202,7 +214,7 @@ provider "yandex" {
 ```
 </details>
 
-#### Опишем конфигурацию сети и добавим таблицу маршрутизации для `NAT` инстанса
+Опишем конфигурацию сети и добавим таблицу маршрутизации для `NAT` инстанса
 
 <details><summary>network.tf</summary>
 
@@ -243,7 +255,7 @@ resource "yandex_vpc_subnet" "subnet" {
 ```
 </details>
 
-#### Опишем `output` для вывода информации об инстансах `(internal_ip, external_ip, fqdn)`
+Опишем `output` для вывода информации об инстансах `(internal_ip, external_ip, fqdn)`
 
 <details><summary>output.tf</summary>
 
@@ -327,7 +339,7 @@ output "fqdn_monitoring" {
 ```
 </details>
 
-#### Опишем конфигурацию инстанса с `reverse proxy` и `NAT`
+Опишем конфигурацию инстанса с `reverse proxy` и `NAT`
 
 <details><summary>01_proxy.tf</summary>
 
@@ -370,7 +382,7 @@ resource "yandex_compute_instance" "proxy" {
 ```
 </details>
 
-#### Опишем конфигурацию инстансов для `MYSQL` кластера Master/Slave `(db01, db02)` 
+Опишем конфигурацию инстансов для `MYSQL` кластера Master/Slave `(db01, db02)` 
 
 <details><summary>02_db01.tf</summary>
 
@@ -446,7 +458,7 @@ resource "yandex_compute_instance" "db02" {
 ```
 </details>
 
-#### Опишем конфигурацию инстанса для `Wordpress`
+Опишем конфигурацию инстанса для `Wordpress`
 
 <details><summary>04_app.tf</summary>
 
@@ -484,7 +496,7 @@ resource "yandex_compute_instance" "app" {
 ```
 </details>
 
-#### Опишем конфигурацию инстанса для `Gitlab`
+Опишем конфигурацию инстанса для `Gitlab`
 
 <details><summary>05_gitlab.tf</summary>
 
@@ -523,7 +535,7 @@ resource "yandex_compute_instance" "gitlab" {
 ```
 </details>
 
-#### Опишем конфигурацию инстанса для `Gitlab Runner`
+Опишем конфигурацию инстанса для `Gitlab Runner`
 
 <details><summary>06_runner.tf</summary>
 
@@ -562,7 +574,7 @@ resource "yandex_compute_instance" "runner" {
 ```
 </details>
 
-#### Опишем конфигурацию инстанса для систем мониторинга `(Prometheus, Grafana, Alertmanager)`
+Опишем конфигурацию инстанса для систем мониторинга `(Prometheus, Grafana, Alertmanager)`
 
 <details><summary>07_monitoring.tf</summary>
 
@@ -601,7 +613,7 @@ resource "yandex_compute_instance" "monitoring" {
 ```
 </details>
 
-#### Опишем конфигурацию для автоматического создания файла `inventory` для `Ansible`
+Опишем конфигурацию для автоматического создания файла `inventory` для `Ansible`
 
 <details><summary>inventory.tf</summary>
 
@@ -675,7 +687,7 @@ resource "local_file" "inventory" {
 ```
 </details>
 
-#### Опишем переменные для `Terraform`
+Опишем переменные для `Terraform`
 
 <details><summary>variables.tf</summary>
 
@@ -701,6 +713,11 @@ variable "linux_user" {
 }
 ```
 </details>
+
+Развернем инфраструктуру в `Yandex Cloud`
+```bash
+terraform apply -auto-approve
+```
 
 ![yc_instances](img/yc_instances.png)
 
@@ -1020,6 +1037,30 @@ cat /etc/gitlab/initial_root_password
 3 directories, 3 files
 ```
 ---
+### 10. Закроем входящий трафик на `reverse proxy` сервере за исключением нескольких портов добавив правила файрволла в `iptables`
+Подготовим Ansible роль [iptables-rules](https://github.com/astorf15/net.devops/tree/main/homework/diplom-netology/stack/ansible/roles/iptables-rules) и пропишем правила на входящий трафик
+
+```bash
+.
+├── handlers
+│   └── main.yml
+└── tasks
+    └── main.yml
+```
+### CHAIN INPUT RULES
+
+```bash
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination         
+1    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            /* Allow loopback */
+2    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0            ctstate RELATED,ESTABLISHED /* Allow related and established connections */
+3    ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            /* Allow icmp Ping */
+4    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:80 /* Allow HTTP */
+5    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443 /* Allow HTTPS */
+6    ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:22 /* Allow SSH */
+7    DROP       all  --  0.0.0.0/0            0.0.0.0/0            /* Drop all */
+```
+---
 
 ## Финал практикума, ссылки на репозиторий и сервисы
 
@@ -1033,3 +1074,5 @@ cat /etc/gitlab/initial_root_password
 * [https://grafana.rusdevops.ru (Grafana)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)
 * [https://prometheus.rusdevops.ru (Prometheus)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)
 * [https://alertmanager.rusdevops.ru (Alert Mansger)](#8-настроим-мониторинг-инфраструктуры-с-помощью-стека-prometheus-alert-manager-и-grafana)
+
+## [Видео инсталяция инфраструктуры ](https://www.youtube.com/watch?v=nIkqL5Z_VpE)

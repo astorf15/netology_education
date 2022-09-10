@@ -1,4 +1,12 @@
 ---
+  - name: Run of "apt update" 
+    hosts: all
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - apt-update
+  
   - name: Install of Requrements Tools
     hosts: all
     become: yes
@@ -104,3 +112,13 @@
       - configure-ssh
     tags:
       - configure-ssh 
+
+  - name: Set iptables_rules
+    hosts: proxy
+    become: yes
+    become_user: root
+    remote_user: ubuntu
+    roles:
+      - iptables-rules
+    tags:
+      - iptables-rules     
